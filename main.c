@@ -18,8 +18,6 @@
  *
  ******************************************************************************/
 
-// rps-demo
-// Created using ./ai8xize.py --verbose --log --test-dir pytorch --prefix rps-demo --checkpoint-file trained/ai85-rps82-chw.pth.tar --config-file networks/rps-chw.yaml --softmax --embedded-code --device MAX78000 --compact-data --mexpress --timer 0 --display-checkpoint --fifo
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -58,6 +56,10 @@
 
 #define TFT_BUFF_SIZE 35 // TFT buffer size
 #define CNN_NUM_OUTPUTS 3 // number of classes
+
+const uint32_t frame_interval_us = 1000000; // 1 second
+MXC_Delay(frame_interval_us);
+
 
 #ifdef BOARD_EVKIT_V1
 
@@ -327,45 +329,7 @@ int gen_random_no(int randNo)
 
 /* **************************************************************************** */
 // 1-> Paper; 2-> Rock; 3-> Scissors
-int check_winner(uint8_t comp, uint8_t user)
-{
-    if (user == 1) {
-        if (comp == 1) {
-            return DRAW;
-        }
-        if (comp == 2) {
-            return USER_WINS;
-        }
-        if (comp == 3) {
-            return COMP_WINS;
-        }
-    }
 
-    if (user == 2) {
-        if (comp == 1) {
-            return COMP_WINS;
-        }
-        if (comp == 2) {
-            return DRAW;
-        }
-        if (comp == 3) {
-            return USER_WINS;
-        }
-    }
-
-    if (user == 3) {
-        if (comp == 1) {
-            return USER_WINS;
-        }
-        if (comp == 2) {
-            return COMP_WINS;
-        }
-        if (comp == 3) {
-            return DRAW;
-        }
-    }
-    return 0;
-}
 
 /* **************************************************************************** */
 int main(void)
