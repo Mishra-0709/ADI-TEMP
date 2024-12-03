@@ -39,16 +39,18 @@
 #include "sampledata.h"
 #include "mxc_delay.h"
 #include "camera.h"
+
 #ifdef BOARD_EVKIT_V1
 #include "bitmap.h"
 #include "tft_ssd2119.h"
 #endif
+
 #ifdef BOARD_FTHR_REVA
 #include "tft_ili9341.h"
 #include "road_edge_lines.h"
 #endif
 
-// Comment out USE_SAMPLEDATA to use Camera module
+// Uncomment to use sample data instead of camera input
 #define USE_SAMPLEDATA
 
 #define CAMERA_TO_LCD (1)
@@ -57,24 +59,19 @@
 #define CAMERA_FREQ (10 * 1000 * 1000)
 
 #define TFT_BUFF_SIZE 35 // TFT buffer size
-#define CNN_NUM_OUTPUTS 3 // number of classes
+#define CNN_NUM_OUTPUTS 3 // Number of classes
 
+// Placeholder declarations for additional functions
+void capture_camera_img(void);
+void convert_img_signed_to_unsigned(uint32_t *input0, uint32_t *input1, uint32_t *input2);
+void process_camera_img(uint32_t *input0, uint32_t *input1, uint32_t *input2);
 
-
-// Assuming these functions and variables are defined elsewhere in your project:
-// extern void capture_camera_img(void);
-// extern void process_camera_img(uint32_t *input0, uint32_t *input1, uint32_t *input2);
-// extern void convert_img_signed_to_unsigned(uint32_t *input0, uint32_t *input1, uint32_t *input2);
-// extern void MXC_TFT_ClearScreen(void);
-// extern void TFT_Print(char *buff, int x, int y, void *font, int len);
-// extern void MXC_Delay(uint32_t microseconds);
-
-// Global variables for storing sample data and the TFT display buffer
+// Global variables
 char buff[128];  // Buffer for text on the display
 void *font_2;    // Font pointer, replace with your actual font type
 uint32_t input_0[1024], input_1[1024], input_2[1024];  // Placeholder for sample data arrays
 
-// Function to simulate sample data for testing (to be replaced by actual camera capture)
+// Generate sample data for testing
 void generate_sample_data(void) {
     for (int i = 0; i < 1024; i++) {
         input_0[i] = i;
@@ -83,9 +80,41 @@ void generate_sample_data(void) {
     }
 }
 
+// Function to simulate camera image capture (placeholder for actual implementation)
+void capture_camera_img(void) {
+    printf("Simulating camera image capture...\n");
+    for (int i = 0; i < 1024; i++) {
+        input_0[i] = rand() % 256; // Random grayscale values
+        input_1[i] = rand() % 256;
+        input_2[i] = rand() % 256;
+    }
+}
+
+// Process camera image (normalize values, apply transformations, etc.)
+void process_camera_img(uint32_t *input0, uint32_t *input1, uint32_t *input2) {
+    printf("Processing camera image...\n");
+    for (int i = 0; i < 1024; i++) {
+        // Normalize pixel values to range 0.0 - 1.0
+        input0[i] = input0[i] & 0xFF; // Assuming 8-bit grayscale
+        input1[i] = input1[i] & 0xFF;
+        input2[i] = input2[i] & 0xFF;
+    }
+    printf("Camera image processing complete.\n");
+}
+
+// Convert signed image data to unsigned format (for CNN compatibility)
+void convert_img_signed_to_unsigned(uint32_t *input0, uint32_t *input1, uint32_t *input2) {
+    printf("Converting signed to unsigned image data...\n");
+    for (int i = 0; i < 1024; i++) {
+        input0[i] = (input0[i] + 128) & 0xFF; // Adjust range from [-128,127] to [0,255]
+        input1[i] = (input1[i] + 128) & 0xFF;
+        input2[i] = (input2[i] + 128) & 0xFF;
+    }
+    printf("Conversion complete.\n");
+}
+
 // Main function
-int main(void)
-{
+int main(void) {
     int frame = 0;
     uint32_t input_0_camera[1024];
     uint32_t input_1_camera[1024];
@@ -110,8 +139,9 @@ int main(void)
 #else
         // Capture and process camera frame
         printf("Capturing and processing camera frame %d\n", frame);
-        capture_camera_img();  // Your camera capture function
-        process_camera_img(input_0_camera, input_1_camera, input_2_camera);  // Process captured frame
+        capture_camera_img();
+        process_camera_img(input_0_camera, input_1_camera, input_2_camera);
+        Detect_Lines(input_0_camera) ;
 #endif
 
 #ifdef TFT_ENABLE
